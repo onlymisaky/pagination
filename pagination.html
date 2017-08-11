@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>pagination</title>
+    <link rel="stylesheet" href="./pagination.css">
+</head>
+
+<body>
+    <div id="list">
+    </div>
+    <div id="pagination">
+    </div>
+</body>
+
+</html>
+<script src="./http.js"></script>
+<script src="./pagination.js"></script>
+<script>
+    var p = new Pagination({
+        el: "#pagination",
+        currentPage: 1,
+        visiblePages: 10,
+        totalPages: 1,
+        onPageChange: function (num) {
+            getList(num);
+        }
+    });
+
+    var totalPages;
+    var elList = document.getElementById("list");
+    var list = [];
+
+    function getList(num) {
+        elList.innerHTML = "正在加载";
+        list = [];
+        ajax({
+            url: './list.json',
+            dataType: 'json'
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.data.itemList.forEach(function (item) {
+                        list.push(`<div>第${num}-${item}</div>`);
+                    });
+                    elList.innerHTML = list.join('');
+                    p.change({ totalPages: response.data.total });
+                }
+            })
+            .catch(err => { elList.innerHTML = new Error(err) });
+    }
+    getList(1);
+
+</script>
